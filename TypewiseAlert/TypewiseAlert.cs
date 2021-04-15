@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using TypewiseAlert.Interfaces;
 using TypewiseAlert.Notifiers;
 using static TypewiseAlert.TypewiseAlert;
@@ -44,14 +45,21 @@ namespace TypewiseAlert
 
         public static BreachType ClassifyTemperatureBreach(CoolingType coolingType, double temperatureInC) 
         {
-            ExtremeLimit _extremeLimit = new CoolingLimitDictionaryInitializer()._CoolingLimitType[coolingType]().SetExtremeLimit(coolingType);
-            return InferBreach(temperatureInC, _extremeLimit.lowerLimit, _extremeLimit.upperLimit);
+          ExtremeLimit _extremeLimit = new CoolingLimitDictionaryInitializer()._CoolingLimitType[coolingType]().SetExtremeLimit(coolingType);
+          return InferBreach(temperatureInC, _extremeLimit.lowerLimit, _extremeLimit.upperLimit);
         }
 
         public static void CheckAndAlert(AlertTarget alertTarget, BatteryCharacter batteryChar, double temperatureInC) 
         {
-            BreachType breachType = ClassifyTemperatureBreach(batteryChar.coolingType, temperatureInC);
-            new AlertNotifierType()._NotifierType[alertTarget]().TriggerNotification(breachType);
+          BreachType breachType = ClassifyTemperatureBreach(batteryChar.coolingType, temperatureInC);
+            if (Convert.ToBoolean(ConfigurationManager.AppSettings["TestingEnvironment"]))
+            {
+                new FakeAlertNotifierType()._NotifierType[alertTarget]().TriggerNotification(breachType);
+            }
+            else
+            {
+                new AlertNotifierType()._NotifierType[alertTarget]().TriggerNotification(breachType);
+            }
         }
               
     }

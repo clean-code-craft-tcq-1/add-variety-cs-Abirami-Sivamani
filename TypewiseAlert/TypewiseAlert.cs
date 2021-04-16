@@ -40,7 +40,18 @@ namespace TypewiseAlert
         #endregion
 
         public static BreachType InferBreach(double value, double lowerLimit, double upperLimit) {
-            return (value < lowerLimit) ? BreachType.TOO_LOW : (value > upperLimit) ? BreachType.TOO_HIGH : BreachType.NORMAL;
+            return IsValueLowerThanLimit(value, lowerLimit, upperLimit);
+        }
+
+        public static BreachType IsValueLowerThanLimit(double value, double lowerLimit, double upperLimit)
+        {
+            return (value < lowerLimit) ? BreachType.TOO_LOW : IsValueHigherThanLimit(value, upperLimit);
+
+        }
+
+        public static BreachType IsValueHigherThanLimit(double value, double upperLimit)
+        {
+            return (value > upperLimit) ? BreachType.TOO_HIGH : BreachType.NORMAL;
         }
 
         public static BreachType ClassifyTemperatureBreach(CoolingType coolingType, double temperatureInC) 

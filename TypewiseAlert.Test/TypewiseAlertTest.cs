@@ -43,6 +43,46 @@ namespace TypewiseAlert.Test
     {
         Assert.True(ClassifyTemperatureBreach(CoolingType.HI_ACTIVE_COOLING, 42) == BreachType.NORMAL);
     }
+    
+    [Fact]
+    public void ConsoleCheckAndAlertTest()
+    {
+        var _notifierType = new FakeConsoleNotifier();
+        CheckAndAlert(_notifierType, new BatteryCharacter { brand = "XYZ", coolingType = CoolingType.MED_ACTIVE_COOLING }, -5);
+        Assert.True(_notifierType.IsConsoleTriggerNotificationCalled);
+    }
+
+    [Fact]
+    public void EmailCheckAndAlertTest()
+    {
+        var _notifierType = new FakeEmailNotifier();
+        CheckAndAlert(_notifierType, new BatteryCharacter { brand = "ABC", coolingType = CoolingType.PASSIVE_COOLING }, 50);
+        Assert.True(_notifierType.IsEmailTriggerNotificationCalled);
+    }
+
+    [Fact]
+    public void ControllerCheckAndAlertTest()
+    {
+        var _notifierType = new FakeControllerNotifier();
+        CheckAndAlert(_notifierType, new BatteryCharacter { brand = "PQR", coolingType = CoolingType.HI_ACTIVE_COOLING }, -5);
+        Assert.True(_notifierType.IsControllerTriggerNotificationCalled);
+    }
+
+    [Fact]
+    public void CompositeCheckAndAlertTest()
+    {
+        var _notifierType = new CompositeNotifier();
+        FakeConsoleNotifier _consoleNotifier = new FakeConsoleNotifier();
+        FakeEmailNotifier _emailNotifier = new FakeEmailNotifier();
+        FakeControllerNotifier _controllerNotifier = new FakeControllerNotifier();
+        _notifierType.AddNotifierToList(_consoleNotifier);
+        _notifierType.AddNotifierToList(_emailNotifier);
+        _notifierType.AddNotifierToList(_controllerNotifier);
+        CheckAndAlert(_notifierType, new BatteryCharacter { brand = "PQR", coolingType = CoolingType.HI_ACTIVE_COOLING }, -5);
+        Assert.True(_consoleNotifier.IsConsoleTriggerNotificationCalled);
+        Assert.True(_controllerNotifier.IsControllerTriggerNotificationCalled);
+        Assert.True(_emailNotifier.IsEmailTriggerNotificationCalled);
+    }
 
     [Fact]
     public void EmailNotificationTest()
@@ -80,12 +120,6 @@ namespace TypewiseAlert.Test
     {
         var _coolingClassType = new CoolingLimitDictionaryInitializer()._CoolingLimitType[CoolingType.PASSIVE_COOLING]();
         Assert.NotNull(_coolingClassType);
-    }
-    
-    [Fact]
-    public void AlertNotifierTypeTest()
-    {
-        Assert.NotNull(new AlertNotifierType()._NotifierType[AlertTarget.TO_CONSOLE]());
     }
     
     [Fact]

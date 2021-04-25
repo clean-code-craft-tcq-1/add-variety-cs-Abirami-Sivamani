@@ -71,16 +71,23 @@ namespace TypewiseAlert.Test
     [Fact]
     public void CompositeCheckAndAlertTest()
     {
+        var _notifierType = new FakeCompositeNotifier();
+        FakeControllerNotifier _controllerNotifier = new FakeControllerNotifier();
+        _notifierType.AddNotifierToList(_controllerNotifier);
+        CheckAndAlert(_notifierType, new BatteryCharacter { brand = "PQR", coolingType = CoolingType.HI_ACTIVE_COOLING }, -5);
+        Assert.True(_notifierType.IsCompositeTriggerNotificationCalledOnce);
+    }
+
+    [Fact]
+    public void CompositeNotificationTest()
+    {
         var _notifierType = new CompositeNotifier();
         FakeConsoleNotifier _consoleNotifier = new FakeConsoleNotifier();
         FakeEmailNotifier _emailNotifier = new FakeEmailNotifier();
-        FakeControllerNotifier _controllerNotifier = new FakeControllerNotifier();
         _notifierType.AddNotifierToList(_consoleNotifier);
         _notifierType.AddNotifierToList(_emailNotifier);
-        _notifierType.AddNotifierToList(_controllerNotifier);
-        CheckAndAlert(_notifierType, new BatteryCharacter { brand = "PQR", coolingType = CoolingType.HI_ACTIVE_COOLING }, -5);
+        _notifierType.TriggerNotification(BreachType.TOO_HIGH);
         Assert.True(_consoleNotifier.IsConsoleTriggerNotificationCalled);
-        Assert.True(_controllerNotifier.IsControllerTriggerNotificationCalled);
         Assert.True(_emailNotifier.IsEmailTriggerNotificationCalled);
     }
 
